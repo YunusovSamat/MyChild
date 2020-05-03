@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+
+mypy --disallow-untyped-defs --follow-imports=skip app
+flake8 app --exclude=app/db/migrations
+
+black --check app --diff
+isort --recursive --check-only app
