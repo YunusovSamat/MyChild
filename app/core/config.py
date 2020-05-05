@@ -10,8 +10,5 @@ DATABASE_URL = config("DB_CONNECTION", cast=DatabaseURL)
 SECRET_KEY = config("SECRET_KEY", cast=Secret)
 ALGORITHM = config("ALGORITHM", cast=str)
 ACCESS_TOKEN_EXPIRE_MINUTES = config(
-    "ACCESS_TOKEN_EXPIRE_MINUTES",
-    cast=int,
-    default=10080
+    "ACCESS_TOKEN_EXPIRE_MINUTES", cast=int, default=10080
 )
-

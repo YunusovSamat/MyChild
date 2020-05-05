@@ -8,10 +8,9 @@ WORKDIR /app
 COPY poetry.lock .
 COPY pyproject.toml .
 
-ARG env=prod
 RUN pip install poetry==1.0.2 --no-cache-dir && \
     poetry config virtualenvs.create false && \
-    poetry install `if test $env = prod || test $env = dev ; then echo "--no-dev" ; fi` && \
+    poetry install --no-dev && \
     rm -rf /root/.cache/pypoetry
 
 COPY . .

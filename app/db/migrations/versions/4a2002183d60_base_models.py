@@ -6,11 +6,11 @@ Create Date: 2020-05-03 20:05:54.418690
 
 Doc: https://alembic.sqlalchemy.org/en/latest/tutorial.html#create-a-migration-script
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects.postgresql import UUID
 
-revision = '4a2002183d60'
+revision = "4a2002183d60"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,8 +38,11 @@ def create_child_table():
     op.create_table(
         "child",
         sa.Column("child_id", UUID, primary_key=True),
-        sa.Column("educator_id", UUID,
-                  sa.ForeignKey("educator.educator_id", ondelete="SET NULL")),
+        sa.Column(
+            "educator_id",
+            UUID,
+            sa.ForeignKey("educator.educator_id", ondelete="SET NULL"),
+        ),
         sa.Column("age", sa.Integer, sa.CheckConstraint("age > 2 and age < 7")),
         sa.Column("photo_link", sa.String(LINK_MAX_LENGTH)),
         sa.Column("blood_type", sa.String(STR_MAX_LENGTH)),
@@ -55,7 +58,9 @@ def create_parent_table():
     op.create_table(
         "parent",
         sa.Column("parent_id", UUID, primary_key=True),
-        sa.Column("child_id", UUID, sa.ForeignKey("child.child_id")),
+        sa.Column(
+            "child_id", UUID, sa.ForeignKey("child.child_id", ondelete="CASCADE")
+        ),
         sa.Column("username", sa.String(STR_MAX_LENGTH)),
         sa.Column("password", sa.String(PASSW_MAX_LENGTH)),
         sa.Column("relation_degree", sa.String(STR_MAX_LENGTH)),
@@ -71,7 +76,9 @@ def create_event_table():
     op.create_table(
         "event",
         sa.Column("event_id", UUID, primary_key=True),
-        sa.Column("child_id", UUID, sa.ForeignKey("child.child_id")),
+        sa.Column(
+            "child_id", UUID, sa.ForeignKey("child.child_id", ondelete="CASCADE")
+        ),
         sa.Column("date", sa.DATE),
         sa.Column("has_come", sa.String(STR_MAX_LENGTH)),
         sa.Column("has_gone", sa.String(STR_MAX_LENGTH)),
@@ -85,7 +92,9 @@ def create_meal_table():
     op.create_table(
         "meal",
         sa.Column("meal_id", UUID, primary_key=True),
-        sa.Column("event_id", UUID, sa.ForeignKey("event.event_id")),
+        sa.Column(
+            "event_id", UUID, sa.ForeignKey("event.event_id", ondelete="CASCADE")
+        ),
         sa.Column("type", sa.Integer, sa.CheckConstraint("type >= 1 and type <= 3")),
     )
 
@@ -94,7 +103,11 @@ def create_food_table():
     op.create_table(
         "food",
         sa.Column("food_id", UUID, primary_key=True),
-        sa.Column("educator_id", UUID, sa.ForeignKey("educator.educator_id")),
+        sa.Column(
+            "educator_id",
+            UUID,
+            sa.ForeignKey("educator.educator_id", ondelete="SET NULL"),
+        ),
         sa.Column("name", sa.String(STR_MAX_LENGTH)),
     )
 
@@ -103,8 +116,8 @@ def create_ration_table():
     op.create_table(
         "ration",
         sa.Column("ration_id", UUID, primary_key=True),
-        sa.Column("meal_id", UUID, sa.ForeignKey("meal.meal_id")),
-        sa.Column("food_id", UUID, sa.ForeignKey("food.food_id")),
+        sa.Column("meal_id", UUID, sa.ForeignKey("meal.meal_id", ondelete="CASCADE")),
+        sa.Column("food_id", UUID, sa.ForeignKey("food.food_id", ondelete="CASCADE")),
         sa.Column("denial", sa.Boolean),
     )
 

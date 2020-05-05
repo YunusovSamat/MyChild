@@ -19,6 +19,11 @@ bcrypt = "^3.1.7"
 python-multipart = "^0.0.5"
 
 [tool.poetry.dev-dependencies]
+autoflake = "^1.3.1"
+flake8 = "^3.7.9"
+mypy = "^0.770"
+isort = "^4.3.21"
+black = "^19.10b0"
 
 [build-system]
 requires = ["poetry>=0.12"]
