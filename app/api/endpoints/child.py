@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
-from app.db.my_child.models import Educator
-from app.schemas.models import ChildCreatePydantic, ChildPydantic, ParentPydantic
+from app.db.my_child.models import Educator, Child
+from app.schemas.models import ChildCreatePydantic
+from tortoise.contrib.pydantic import pydantic_model_creator
+
 
 router = APIRouter()
 
@@ -15,25 +17,23 @@ async def read_children(
     current_educator: Educator = Depends(auth.get_current_educator),
 ):
     db_children = crud.get_all_child(current_educator.educator_id)
+    ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
     return await ChildPydantic.from_queryset(db_children)
 
 
 @router.get("/children/{child_id}/")
 async def read_child(
-    child_id: UUID, current_educator: Educator = Depends(auth.get_current_educator)
+    child_id: UUID,
+    current_educator: Educator = Depends(auth.get_current_educator)
 ):
     db_child = await crud.get_child(child_id)
-    db_parents = crud.get_parents_by_child_id(child_id)
-
-    result = (await ChildPydantic.from_tortoise_orm(db_child)).dict()
-    result["parents"] = await ParentPydantic.from_queryset(db_parents)
-    return result
+    ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
+    return await ChildPydantic.from_tortoise_orm(db_child)
 
 
 @router.post(
     "/children/",
     status_code=status.HTTP_201_CREATED,
-    response_model=ChildPydantic,
     description="Если educator_id null, то воспитатель будет текущим",
 )
 async def create_child(
@@ -42,7 +42,8 @@ async def create_child(
 ):
     if not child.educator_id:
         child.educator_id = current_educator.educator_id
-    db_child = await crud.create_child(child)
+    db_child = await crud.create_child(child.dict())
+    ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
     return await ChildPydantic.from_tortoise_orm(db_child)
 
 
@@ -54,9 +55,10 @@ async def update_child(
 ):
     if not child.educator_id:
         child.educator_id = current_educator.educator_id
-    await crud.update_child(child_id, child)
+    await crud.update_child(child_id, child.dict(exclude_defaults=True))
     db_child = await crud.get_child(child_id)
-    return ChildPydantic.from_tortoise_orm(db_child)
+    ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
+    return await ChildPydantic.from_tortoise_orm(db_child)
 
 
 @router.delete("/children/{child_id}")

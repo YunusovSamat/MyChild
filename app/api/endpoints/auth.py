@@ -8,6 +8,7 @@ from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.db.my_child import crud
 from app.db.my_child.models import Educator
 from app.schemas.models import EducatorPydantic, Token
+from tortoise.contrib.pydantic import pydantic_model_creator
 
 router = APIRouter()
 
