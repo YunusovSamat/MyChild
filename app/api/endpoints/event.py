@@ -35,11 +35,17 @@ async def create_event(
 @router.get("/events/")
 async def read_event(child_id: UUID = Query(...), date: datetime.date = Query(...)):
     db_event = await crud.get_event(child_id, date)
+    if not db_event:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, detail=f"Event not found"
+        )
     EventPydantic = pydantic_model_creator(Event, exclude=("child",))
     event = await EventPydantic.from_tortoise_orm(db_event)
     event_dict = event.dict()
     for meal_dict in event_dict["meals"]:
-        for ration_dict in meal_dict["meal_rations"]:
+        meal_dict["rations"] = meal_dict["meal_rations"]
+        del meal_dict["meal_rations"]
+        for ration_dict in meal_dict["rations"]:
             food_dict = ration_dict["food"]
             for k, v in food_dict.items():
                 ration_dict[k] = v
