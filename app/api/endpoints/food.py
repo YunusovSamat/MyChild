@@ -1,15 +1,11 @@
 from uuid import UUID
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
 from app.db.my_child.models import Educator
-from app.schemas.models import FoodCreatePydantic
-from app.schemas.models import FoodPydantic
+from app.schemas.models import FoodCreatePydantic, FoodPydantic
 
 router = APIRouter()
 

@@ -1,11 +1,9 @@
-from typing import Any
-from typing import Callable
+from typing import Any, Callable
 
 from asyncpg.pgproto import pgproto
 from pydantic.json import ENCODERS_BY_TYPE
 
-from app.db.events import close_db
-from app.db.events import init_db
+from app.db.events import close_db, init_db
 
 
 def startup(**kwargs: Any) -> Callable:

@@ -2,17 +2,12 @@ import datetime
 from typing import Union
 from uuid import UUID
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import Query
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
-from app.db.my_child.models import Educator, Parent
-from app.db.my_child.models import Event
+from app.db.my_child.models import Educator, Event, Parent
 from app.schemas.models import EventCreatePydantic
 
 router = APIRouter()
@@ -20,8 +15,8 @@ router = APIRouter()
 
 @router.post("/events/")
 async def create_event(
-        event: EventCreatePydantic,
-        current_educator: Educator = Depends(auth.get_current_educator),
+    event: EventCreatePydantic,
+    current_educator: Educator = Depends(auth.get_current_educator),
 ):
     await crud.delete_event(event.child_id, event.date)
 
@@ -38,8 +33,11 @@ async def create_event(
 
 
 @router.get("/events/")
-async def read_event(child_id: UUID = Query(...), date: datetime.date = Query(...),
-                     current_user: Union[Educator, Parent] = Depends(auth.get_current_user)):
+async def read_event(
+    child_id: UUID = Query(...),
+    date: datetime.date = Query(...),
+    current_user: Union[Educator, Parent] = Depends(auth.get_current_user),
+):
     db_event = await crud.get_event(child_id, date)
     if not db_event:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Event not found")

@@ -1,16 +1,12 @@
 from typing import Union
 from uuid import UUID
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
-from app.db.my_child.models import Child, Parent
-from app.db.my_child.models import Educator
+from app.db.my_child.models import Child, Educator, Parent
 from app.schemas.models import ChildCreatePydantic
 
 router = APIRouter()
@@ -29,7 +25,8 @@ async def read_children(
 
 @router.get("/children/{child_id}/")
 async def read_child(
-    child_id: UUID, current_user: Union[Educator, Parent] = Depends(auth.get_current_user)
+    child_id: UUID,
+    current_user: Union[Educator, Parent] = Depends(auth.get_current_user),
 ):
     db_child = await crud.get_child(child_id)
     if not db_child:
@@ -41,8 +38,7 @@ async def read_child(
 
 
 @router.post(
-    "/children/",
-    status_code=status.HTTP_201_CREATED,
+    "/children/", status_code=status.HTTP_201_CREATED,
 )
 async def create_child(
     child: ChildCreatePydantic,

@@ -1,5 +1,4 @@
-from tortoise import fields
-from tortoise import models
+from tortoise import fields, models
 
 STR_MAX_LENGTH = 50
 LINK_MAX_LENGTH = 150

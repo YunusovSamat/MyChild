@@ -2,13 +2,7 @@ import datetime
 from typing import Optional, Union
 from uuid import UUID
 
-from app.db.my_child.models import Child
-from app.db.my_child.models import Educator
-from app.db.my_child.models import Event
-from app.db.my_child.models import Food
-from app.db.my_child.models import Meal
-from app.db.my_child.models import Parent
-from app.db.my_child.models import Ration
+from app.db.my_child.models import Child, Educator, Event, Food, Meal, Parent, Ration
 
 
 async def get_user_by_username(username: str) -> Optional[Union[Educator, Parent]]:

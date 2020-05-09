@@ -5,9 +5,7 @@ from pydantic import UUID4
 from pydantic.main import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from app.db.my_child.models import Educator
-from app.db.my_child.models import Food
-from app.db.my_child.models import Parent
+from app.db.my_child.models import Educator, Food, Parent
 
 EducatorPydantic = pydantic_model_creator(
     Educator, name="Educator", exclude=("password",)

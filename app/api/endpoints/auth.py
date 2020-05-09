@@ -1,14 +1,10 @@
 from datetime import timedelta
 
-from fastapi import APIRouter
-from fastapi import Depends
-from fastapi import HTTPException
-from fastapi import status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.dependencies import auth
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from app.db.my_child.models import Educator, Parent
 from app.schemas.models import Token
 
 router = APIRouter()
@@ -28,10 +24,3 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
-
-@router.get("/educator/me/")
-async def read_current_educator(
-    current_educator: Educator = Depends(auth.get_current_educator),
-):
-    return current_educator
