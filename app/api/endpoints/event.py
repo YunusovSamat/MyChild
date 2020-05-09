@@ -1,22 +1,27 @@
 import datetime
+from typing import Union
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi import Query
+from fastapi import status
+from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
-from app.db.my_child.models import Educator, Child, Event
+from app.db.my_child.models import Educator, Parent
+from app.db.my_child.models import Event
 from app.schemas.models import EventCreatePydantic
-from tortoise.contrib.pydantic import pydantic_model_creator
-import pydantic
 
 router = APIRouter()
 
 
 @router.post("/events/")
 async def create_event(
-    event: EventCreatePydantic,
-    current_educator: Educator = Depends(auth.get_current_educator),
+        event: EventCreatePydantic,
+        current_educator: Educator = Depends(auth.get_current_educator),
 ):
     await crud.delete_event(event.child_id, event.date)
 
@@ -33,12 +38,11 @@ async def create_event(
 
 
 @router.get("/events/")
-async def read_event(child_id: UUID = Query(...), date: datetime.date = Query(...)):
+async def read_event(child_id: UUID = Query(...), date: datetime.date = Query(...),
+                     current_user: Union[Educator, Parent] = Depends(auth.get_current_user)):
     db_event = await crud.get_event(child_id, date)
     if not db_event:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, detail=f"Event not found"
-        )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Event not found")
     EventPydantic = pydantic_model_creator(Event, exclude=("child",))
     event = await EventPydantic.from_tortoise_orm(db_event)
     event_dict = event.dict()
@@ -51,29 +55,3 @@ async def read_event(child_id: UUID = Query(...), date: datetime.date = Query(..
                 ration_dict[k] = v
             del ration_dict["food"]
     return event_dict
-# {
-#     "event_id": "11935c9d-8f12-4437-9488-ca1b97188114",
-#     "date": "2020-05-05",
-#     "has_come": "string",
-#     "has_gone": "string",
-#     "asleep": "string",
-#     "awoke": "string",
-#     "comment": "string",
-#     "child_id": "540a1403-5962-47a0-8197-02afc878786a",
-#     "meals": [
-#         {
-#             "meal_id": "a2e6eeb3-f731-4c09-a4a1-0641d8d1ae89",
-#             "type": 1,
-#             "meal_rations": [
-#                 {
-#                     "ration_id": "748f3a48-de02-49c6-8497-124c0902cfb6",
-#                     "food": {
-#                         "food_id": "3305b7dc-3328-4b19-8105-ce42756762a2",
-#                         "name": "\u041a\u0430\u0448\u0430"
-#                     },
-#                     "denial": true
-#                 }
-#             ]
-#         }
-#     ]
-# }

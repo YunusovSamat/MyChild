@@ -1,26 +1,30 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from typing import Union
 
 import jwt
-from fastapi import Depends, HTTPException
-from starlette.status import HTTP_401_UNAUTHORIZED
+from fastapi import Depends
+from fastapi import HTTPException
+from starlette.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
-from app.core.config import ALGORITHM, SECRET_KEY
+from app.core.config import ALGORITHM
+from app.core.config import SECRET_KEY
 from app.db.my_child import crud
-from app.db.my_child.models import Educator
+from app.db.my_child.models import Educator, Parent
 from app.schemas.models import TokenData
-from app.services.security import oauth2_scheme, verify_password
+from app.services.security import oauth2_scheme
+from app.services.security import verify_password
 
 SECRET_KEY = str(SECRET_KEY)
 
 
-async def authenticate_user(username: str, password: str) -> Union[Educator, bool]:
-    db_educator = await crud.get_educator_by_username(username)
-    if not db_educator:
+async def authenticate_user(username: str, password: str) -> Union[Educator, Parent, bool]:
+    db_user = await crud.get_user_by_username(username)
+    if not db_user:
         return False
-    if not verify_password(password, db_educator.password):
+    if not verify_password(password, db_user.password):
         return False
-    return db_educator
+    return db_user
 
 
 def create_access_token(*, data: dict, expires_delta: timedelta) -> bytes:
@@ -31,7 +35,7 @@ def create_access_token(*, data: dict, expires_delta: timedelta) -> bytes:
     return encoded_jwt
 
 
-async def get_current_educator(token: str = Depends(oauth2_scheme)) -> Educator:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> Union[Educator, Parent]:
     credentials_exception = HTTPException(
         status_code=HTTP_401_UNAUTHORIZED, detail="Could not validate credentials"
     )
@@ -43,7 +47,23 @@ async def get_current_educator(token: str = Depends(oauth2_scheme)) -> Educator:
         token_data = TokenData(username=username)
     except jwt.PyJWTError:
         raise credentials_exception
-    db_educator = await crud.get_educator_by_username(token_data.username)
-    if db_educator is None:
+    db_user = await crud.get_user_by_username(token_data.username)
+    if db_user is None:
         raise credentials_exception
-    return db_educator
+    return db_user
+
+
+async def get_current_educator(user: Union[Educator, Parent] = Depends(get_current_user)) -> Educator:
+    if not isinstance(user, Educator):
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Prohibited. you do not have rights"
+        )
+    return user
+
+
+async def get_current_parent(user: Union[Educator, Parent] = Depends(get_current_user)) -> Parent:
+    if not isinstance(user, Parent):
+        raise HTTPException(
+            status_code=HTTP_403_FORBIDDEN, detail="Prohibited. you do not have rights"
+        )
+    return user

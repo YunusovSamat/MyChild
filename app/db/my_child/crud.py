@@ -1,12 +1,29 @@
 import datetime
-from typing import Optional
+from typing import Optional, Union
 from uuid import UUID
 
-from app.db.my_child.models import Child, Educator, Food, Event, Meal, Ration
+from app.db.my_child.models import Child
+from app.db.my_child.models import Educator
+from app.db.my_child.models import Event
+from app.db.my_child.models import Food
+from app.db.my_child.models import Meal
+from app.db.my_child.models import Parent
+from app.db.my_child.models import Ration
+
+
+async def get_user_by_username(username: str) -> Optional[Union[Educator, Parent]]:
+    user = await Educator.get_or_none(username=username)
+    if not user:
+        user = await Parent.get_or_none(username=username)
+    return user
 
 
 async def get_educator_by_username(username: str) -> Optional[Educator]:
     return await Educator.get_or_none(username=username)
+
+
+async def get_parent_by_username(username: str) -> Optional[Parent]:
+    return await Parent.get_or_none(username=username)
 
 
 async def create_child(child: dict):
@@ -66,3 +83,11 @@ async def get_event(child_id: UUID, date: datetime.date):
 async def delete_event(child_id: UUID, date: datetime.date):
     delete_count = await Event.filter(child_id=child_id, date=date).delete()
     return delete_count
+
+
+async def create_parent(parent: dict):
+    return await Parent.create(**parent)
+
+
+async def update_parent(parent_id: UUID, parent: dict):
+    await Parent.filter(parent_id=parent_id).update(**parent)

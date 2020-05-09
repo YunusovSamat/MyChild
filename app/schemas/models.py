@@ -1,11 +1,13 @@
-from typing import List
 import datetime
+from typing import List
 
 from pydantic import UUID4
 from pydantic.main import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from app.db.my_child.models import Educator, Parent, Food
+from app.db.my_child.models import Educator
+from app.db.my_child.models import Food
+from app.db.my_child.models import Parent
 
 EducatorPydantic = pydantic_model_creator(
     Educator, name="Educator", exclude=("password",)
@@ -13,8 +15,6 @@ EducatorPydantic = pydantic_model_creator(
 EducatorCreatePydantic = pydantic_model_creator(
     Educator, name="EducatorCreate", exclude=("educator_id",)
 )
-
-ParentPydantic = pydantic_model_creator(Parent, exclude=("password",))
 
 
 class ChildCreatePydantic(BaseModel):
@@ -56,6 +56,30 @@ class EventCreatePydantic(BaseModel):
     awoke: str = None
     comment: str = None
     meals: List[MealCreatePydantic] = None
+
+
+ParentPydantic = pydantic_model_creator(Parent, exclude=("password",))
+
+
+class ParentBasePydantic(BaseModel):
+    child_id: UUID4 = None
+    relation_degree: str = None
+    phone: str = None
+    photo_link: str = None
+    name: str = None
+    surname: str = None
+    patronymic: str = None
+
+
+class ParentCreatePydantic(ParentBasePydantic):
+    username: str
+    password: str
+    second_password: str
+
+
+class ParentUpdatePydantic(ParentBasePydantic):
+    password: str = None
+    second_password: str = None
 
 
 class Token(BaseModel):

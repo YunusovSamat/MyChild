@@ -2,7 +2,8 @@ from fastapi import FastAPI
 
 from app.api.routers import router
 from app.core.config import DATABASE_URL
-from app.core.events import shutdown, startup
+from app.core.events import shutdown
+from app.core.events import startup
 
 
 def get_application() -> FastAPI:

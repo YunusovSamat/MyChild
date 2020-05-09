@@ -64,7 +64,7 @@ def create_parent_table():
         sa.Column("username", sa.String(STR_MAX_LENGTH)),
         sa.Column("password", sa.String(PASSW_MAX_LENGTH)),
         sa.Column("relation_degree", sa.String(STR_MAX_LENGTH)),
-        sa.Column("phone", sa.Integer),
+        sa.Column("phone", sa.String(STR_MAX_LENGTH)),
         sa.Column("photo_link", sa.String(LINK_MAX_LENGTH)),
         sa.Column("name", sa.String(STR_MAX_LENGTH)),
         sa.Column("surname", sa.String(STR_MAX_LENGTH)),

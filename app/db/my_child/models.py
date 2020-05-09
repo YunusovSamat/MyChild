@@ -1,4 +1,5 @@
-from tortoise import fields, models
+from tortoise import fields
+from tortoise import models
 
 STR_MAX_LENGTH = 50
 LINK_MAX_LENGTH = 150
@@ -42,16 +43,16 @@ class Child(models.Model):
 class Parent(models.Model):
     parent_id = fields.UUIDField(pk=True)
     child: fields.ForeignKeyRelation[Child] = fields.ForeignKeyField(
-        "my_child.Child", related_name="parents", on_delete=fields.CASCADE
+        "my_child.Child", related_name="parents", on_delete=fields.CASCADE, null=True
     )
     username = fields.CharField(max_length=STR_MAX_LENGTH)
     password = fields.CharField(max_length=PASSW_MAX_LENGTH)
     relation_degree = fields.CharField(max_length=STR_MAX_LENGTH, null=True)
-    phone = fields.IntField(null=True)
+    phone = fields.CharField(max_length=STR_MAX_LENGTH, null=True)
     photo_link = fields.CharField(LINK_MAX_LENGTH, null=True)
-    name = fields.CharField(STR_MAX_LENGTH)
-    surname = fields.CharField(STR_MAX_LENGTH)
-    patronymic = fields.CharField(STR_MAX_LENGTH)
+    name = fields.CharField(STR_MAX_LENGTH, null=True)
+    surname = fields.CharField(STR_MAX_LENGTH, null=True)
+    patronymic = fields.CharField(STR_MAX_LENGTH, null=True)
 
 
 class Event(models.Model):
