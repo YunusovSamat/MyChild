@@ -13,7 +13,7 @@ from app.schemas.models import PhotoCreatePydantic, PhotoDeletePydantic
 router = APIRouter()
 
 
-@router.get("/photos/{photo_name}/")
+@router.get("/photos/{photo_name}")
 async def read_photo(photo_path: str = Depends(get_photo_path)):
     return FileResponse(photo_path)
 
