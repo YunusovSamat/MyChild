@@ -14,15 +14,37 @@ from app.services.security import oauth2_scheme, verify_password
 SECRET_KEY = str(SECRET_KEY)
 
 
-async def authenticate_user(
+# async def authenticate_user(
+#     username: str, password: str
+# ) -> Union[Educator, Parent, bool]:
+#     db_user = await crud.get_user_by_username(username)
+#     if not db_user:
+#         return False
+#     if not verify_password(password, db_user.password):
+#         return False
+#     return db_user
+
+
+async def authenticate_educator(
     username: str, password: str
-) -> Union[Educator, Parent, bool]:
-    db_user = await crud.get_user_by_username(username)
-    if not db_user:
+) -> Union[Educator, bool]:
+    db_educator = await crud.get_educator_by_username(username)
+    if not db_educator:
         return False
-    if not verify_password(password, db_user.password):
+    if not verify_password(password, db_educator.password):
         return False
-    return db_user
+    return db_educator
+
+
+async def authenticate_parent(
+    username: str, password: str
+) -> Union[Parent, bool]:
+    db_parent = await crud.get_parent_by_username(username)
+    if not db_parent:
+        return False
+    if not verify_password(password, db_parent.password):
+        return False
+    return db_parent
 
 
 def create_access_token(*, data: dict, expires_delta: timedelta) -> bytes:

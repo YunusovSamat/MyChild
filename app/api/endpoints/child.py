@@ -1,7 +1,7 @@
 from typing import Union
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
@@ -42,11 +42,16 @@ async def read_child(
 )
 async def create_child(
     child: ChildCreatePydantic,
+    request: Request,
     current_educator: Educator = Depends(auth.get_current_educator),
 ):
     if not child.educator_id:
         child.educator_id = current_educator.educator_id
-    db_child = await crud.create_child(child.dict())
+    placeholder_link = f"{request.base_url}photos/placeholder.jpg"
+    child_dict = child.dict()
+    child_dict["photo_link"] = placeholder_link
+
+    db_child = await crud.create_child(child_dict)
     ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
     return await ChildPydantic.from_tortoise_orm(db_child)
 

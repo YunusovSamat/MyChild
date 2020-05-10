@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 from typing import List
 
 from pydantic import UUID4
@@ -6,6 +7,12 @@ from pydantic.main import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.db.my_child.models import Educator, Food, Parent
+
+
+class UserRoleEnum(str, Enum):
+    educator = "educator"
+    parent = "parent"
+
 
 EducatorPydantic = pydantic_model_creator(
     Educator, name="Educator", exclude=("password",)
@@ -17,7 +24,6 @@ EducatorCreatePydantic = pydantic_model_creator(
 
 class ChildCreatePydantic(BaseModel):
     age: int = None
-    photo_link: str = None
     blood_type: str = None
     group: str = None
     locker_num: str = None
@@ -63,7 +69,6 @@ class ParentBasePydantic(BaseModel):
     child_id: UUID4 = None
     relation_degree: str = None
     phone: str = None
-    photo_link: str = None
     name: str = None
     surname: str = None
     patronymic: str = None
@@ -78,6 +83,24 @@ class ParentCreatePydantic(ParentBasePydantic):
 class ParentUpdatePydantic(ParentBasePydantic):
     password: str = None
     second_password: str = None
+
+
+class ProfileEnum(str, Enum):
+    child = "child"
+    parent = "parent"
+
+
+class PhotoBasePydantic(BaseModel):
+    id: UUID4
+    profile: ProfileEnum
+
+
+class PhotoCreatePydantic(PhotoBasePydantic):
+    photo_base64: str
+
+
+class PhotoDeletePydantic(PhotoBasePydantic):
+    pass
 
 
 class Token(BaseModel):

@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 
 from app.api.dependencies import auth
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.post("/parents/")
-async def create_parent(parent: ParentCreatePydantic):
+async def create_parent(parent: ParentCreatePydantic, request: Request):
     db_parent = await crud.get_parent_by_username(parent.username)
     if db_parent:
         raise HTTPException(
@@ -29,7 +29,10 @@ async def create_parent(parent: ParentCreatePydantic):
             detail="first and second passwords do not match",
         )
     parent.password = get_password_hash(parent.password)
-    db_parent = await crud.create_parent(parent.dict(exclude={"second_password"}))
+    placeholder_link = f"{request.base_url}photos/placeholder.jpg"
+    parent_dict = parent.dict(exclude={"second_password"})
+    parent_dict["photo_link"] = placeholder_link
+    db_parent = await crud.create_parent(parent_dict)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
         data={"sub": db_parent.username}, expires_delta=access_token_expires
