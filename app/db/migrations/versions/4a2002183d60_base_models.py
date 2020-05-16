@@ -54,12 +54,26 @@ def create_child_table():
     )
 
 
+def create_bill_table():
+    op.create_table(
+        "bill",
+        sa.Column("bill_id", UUID, primary_key=True),
+        sa.Column(
+            "child_id", UUID, sa.ForeignKey("child.child_id", ondelete="CASCADE")
+        ),
+        sa.Column("theme", sa.String(STR_MAX_LENGTH)),
+        sa.Column("sum", sa.Integer, sa.CheckConstraint("sum >= 0")),
+        sa.Column("status", sa.Boolean),
+        sa.Column("comment", sa.String(COMMENT_MAX_LENGTH)),
+    )
+
+
 def create_parent_table():
     op.create_table(
         "parent",
         sa.Column("parent_id", UUID, primary_key=True),
         sa.Column(
-            "child_id", UUID, sa.ForeignKey("child.child_id", ondelete="CASCADE")
+            "child_id", UUID, sa.ForeignKey("child.child_id", ondelete="SET NULL")
         ),
         sa.Column("username", sa.String(STR_MAX_LENGTH)),
         sa.Column("password", sa.String(PASSW_MAX_LENGTH)),
@@ -125,6 +139,7 @@ def create_ration_table():
 def upgrade():
     create_educator_table()
     create_child_table()
+    create_bill_table()
     create_parent_table()
     create_event_table()
     create_meal_table()
@@ -138,5 +153,6 @@ def downgrade():
     op.drop_table("meal")
     op.drop_table("event")
     op.drop_table("parent")
+    op.drop_table("bill")
     op.drop_table("child")
     op.drop_table("educator")

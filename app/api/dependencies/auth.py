@@ -25,9 +25,7 @@ SECRET_KEY = str(SECRET_KEY)
 #     return db_user
 
 
-async def authenticate_educator(
-    username: str, password: str
-) -> Union[Educator, bool]:
+async def authenticate_educator(username: str, password: str) -> Union[Educator, bool]:
     db_educator = await crud.get_educator_by_username(username)
     if not db_educator:
         return False
@@ -36,9 +34,7 @@ async def authenticate_educator(
     return db_educator
 
 
-async def authenticate_parent(
-    username: str, password: str
-) -> Union[Parent, bool]:
+async def authenticate_parent(username: str, password: str) -> Union[Parent, bool]:
     db_parent = await crud.get_parent_by_username(username)
     if not db_parent:
         return False
@@ -79,9 +75,7 @@ async def get_current_educator(
     user: Union[Educator, Parent] = Depends(get_current_user)
 ) -> Educator:
     if not isinstance(user, Educator):
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Prohibited. you do not have rights"
-        )
+        raise HTTPException(HTTP_403_FORBIDDEN, "Prohibited. you do not have rights")
     return user
 
 
@@ -89,7 +83,5 @@ async def get_current_parent(
     user: Union[Educator, Parent] = Depends(get_current_user)
 ) -> Parent:
     if not isinstance(user, Parent):
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Prohibited. you do not have rights"
-        )
+        raise HTTPException(HTTP_403_FORBIDDEN, "Prohibited. you do not have rights")
     return user

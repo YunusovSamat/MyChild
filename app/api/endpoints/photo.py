@@ -1,10 +1,8 @@
 import base64
 import os
 
-from fastapi import APIRouter, HTTPException, status, Depends, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import FileResponse
-from pydantic import UUID4
-from starlette.routing import NoMatchFound
 
 from app.api.dependencies.photo import get_photo_path
 from app.db.my_child import crud
@@ -27,7 +25,7 @@ async def upload_photo(photo_data: PhotoCreatePydantic, request: Request):
         await crud.update_parent(photo_data.id, {"photo_link": photo_link})
 
     photo_bytes = base64.b64decode(photo_data.photo_base64)
-    with open(f"app/statics/photos/{photo_data.id}.jpg", 'wb') as photo_file:
+    with open(f"app/statics/photos/{photo_data.id}.jpg", "wb") as photo_file:
         photo_file.write(photo_bytes)
     return {"photo_link": photo_link}
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.endpoints.auth import router as auth_router
+from app.api.endpoints.bill import router as bill_router
 from app.api.endpoints.child import router as children_router
 from app.api.endpoints.event import router as events_router
 from app.api.endpoints.food import router as foods_router
@@ -15,3 +16,4 @@ router.include_router(foods_router, tags=["foods"])
 router.include_router(events_router, tags=["events"])
 router.include_router(parents_router, tags=["parents"])
 router.include_router(photos_router, tags=["photos"])
+router.include_router(bill_router, tags=["bill"])

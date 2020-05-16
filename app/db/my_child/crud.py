@@ -1,8 +1,17 @@
 import datetime
-from typing import Optional, Union
+from typing import List, Optional, Union
 from uuid import UUID
 
-from app.db.my_child.models import Child, Educator, Event, Food, Meal, Parent, Ration
+from app.db.my_child.models import (
+    Bill,
+    Child,
+    Educator,
+    Event,
+    Food,
+    Meal,
+    Parent,
+    Ration,
+)
 
 
 async def get_user_by_username(username: str) -> Optional[Union[Educator, Parent]]:
@@ -85,3 +94,28 @@ async def create_parent(parent: dict):
 
 async def update_parent(parent_id: UUID, parent: dict):
     await Parent.filter(parent_id=parent_id).update(**parent)
+
+
+async def get_bill(bill_id: UUID):
+    return await Bill.get_or_none(bill_id=bill_id)
+
+
+def get_bill_by_child_id(child_id: UUID):
+    return Bill.filter(child_id=child_id).all()
+
+
+def get_bill_by_children_ids(children_ids: List[UUID]):
+    return Bill.filter(child_id__in=children_ids).all()
+
+
+async def create_bill(bill: dict):
+    return await Bill.create(**bill)
+
+
+async def update_bill(bill_id: UUID, bill: dict):
+    return await Bill.filter(bill_id=bill_id).update(**bill)
+
+
+async def delete_bill(bill_id: UUID):
+    delete_count = await Bill.filter(bill_id=bill_id).delete()
+    return delete_count

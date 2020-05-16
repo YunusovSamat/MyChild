@@ -6,7 +6,7 @@ from pydantic import UUID4
 from pydantic.main import BaseModel
 from tortoise.contrib.pydantic import pydantic_model_creator
 
-from app.db.my_child.models import Educator, Food, Parent
+from app.db.my_child.models import Bill, Educator, Food, Parent
 
 
 class UserRoleEnum(str, Enum):
@@ -101,6 +101,25 @@ class PhotoCreatePydantic(PhotoBasePydantic):
 
 class PhotoDeletePydantic(PhotoBasePydantic):
     pass
+
+
+class BillCreatePydantic(BaseModel):
+    child_id: UUID4
+    theme: str
+    sum: int
+    status: bool
+    comment: str = None
+
+
+class BillUpdatePydantic(BaseModel):
+    child_id: UUID4 = None
+    theme: str = None
+    sum: int = None
+    status: bool = None
+    comment: str = None
+
+
+BillPydantic = pydantic_model_creator(Bill)
 
 
 class Token(BaseModel):

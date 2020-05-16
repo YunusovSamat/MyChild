@@ -41,7 +41,5 @@ async def delete_food(
 ):
     delete_count = await crud.delete_food(food_id)
     if not delete_count:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, detail=f"Food {food_id} not found"
-        )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Food {food_id} not found")
     return {"message": f"Deleted food {food_id}"}

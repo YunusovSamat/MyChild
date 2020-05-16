@@ -34,13 +34,15 @@ async def create_event(
 
 @router.get("/events/")
 async def read_event(
-    child_id: UUID = Query(...),
+    child_id: UUID = Query(None),
     date: datetime.date = Query(...),
     current_user: Union[Educator, Parent] = Depends(auth.get_current_user),
 ):
+    if isinstance(current_user, Parent):
+        child_id = current_user.child_id
     db_event = await crud.get_event(child_id, date)
     if not db_event:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Event not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Event not found")
     EventPydantic = pydantic_model_creator(Event, exclude=("child",))
     event = await EventPydantic.from_tortoise_orm(db_event)
     event_dict = event.dict()

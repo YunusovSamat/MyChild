@@ -35,8 +35,20 @@ class Child(models.Model):
     surname = fields.CharField(STR_MAX_LENGTH)
     patronymic = fields.CharField(STR_MAX_LENGTH)
 
+    bill: fields.ReverseRelation["Bill"]
     parents: fields.ReverseRelation["Parent"]
     events: fields.ReverseRelation["Event"]
+
+
+class Bill(models.Model):
+    bill_id = fields.UUIDField(pk=True)
+    child: fields.ForeignKeyRelation[Child] = fields.ForeignKeyField(
+        "my_child.Child", related_name="bill", on_delete=fields.CASCADE, null=True
+    )
+    theme = fields.CharField(STR_MAX_LENGTH)
+    sum = fields.IntField()
+    status = fields.BooleanField()
+    comment = fields.CharField(COMMENT_MAX_LENGTH, null=True)
 
 
 class Parent(models.Model):

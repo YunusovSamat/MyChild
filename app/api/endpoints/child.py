@@ -1,10 +1,12 @@
+import os
 from typing import Union
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
+from app.api.dependencies.photo import get_photo_path
 from app.db.my_child import crud
 from app.db.my_child.models import Child, Educator, Parent
 from app.schemas.models import ChildCreatePydantic
@@ -30,9 +32,7 @@ async def read_child(
 ):
     db_child = await crud.get_child(child_id)
     if not db_child:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, detail=f"Child {child_id} not found"
-        )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Child {child_id} not found")
     ChildPydantic = pydantic_model_creator(Child, exclude=("events", "educator"))
     return await ChildPydantic.from_tortoise_orm(db_child)
 
@@ -76,7 +76,13 @@ async def delete_child(
 ):
     delete_count = await crud.delete_child(child_id)
     if not delete_count:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND, detail=f"Child {child_id} not found"
-        )
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Child {child_id} not found")
+    photo_name = f"{child_id}.jpg"
+    try:
+        photo_path = await get_photo_path(photo_name)
+    except HTTPException:
+        pass
+    else:
+        os.remove(photo_path)
+
     return {"message": f"Deleted child {child_id}"}

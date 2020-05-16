@@ -1,11 +1,12 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.db.my_child import crud
-from app.db.my_child.models import Parent
+from app.db.my_child.models import Child, Parent
 from app.schemas.models import (
     ParentCreatePydantic,
     ParentPydantic,
@@ -20,13 +21,10 @@ router = APIRouter()
 async def create_parent(parent: ParentCreatePydantic, request: Request):
     db_parent = await crud.get_parent_by_username(parent.username)
     if db_parent:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Username is already exist"
-        )
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Username is already exist")
     if parent.password != parent.second_password:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="first and second passwords do not match",
+            status.HTTP_400_BAD_REQUEST, "first and second passwords do not match",
         )
     parent.password = get_password_hash(parent.password)
     placeholder_link = f"{request.base_url}photos/placeholder.jpg"
@@ -47,8 +45,7 @@ async def update_parent(
 ):
     if parent.password != parent.second_password:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="first and second passwords do not match",
+            status.HTTP_400_BAD_REQUEST, "first and second passwords do not match",
         )
     if parent.password:
         parent.password = get_password_hash(parent.password)
@@ -66,3 +63,15 @@ async def read_current_parent(
 ):
     db_parent = await crud.get_parent_by_username(current_parent.username)
     return await ParentPydantic.from_tortoise_orm(db_parent)
+
+
+@router.get("/parents/child/")
+async def read_my_child(current_parent: Parent = Depends(auth.get_current_parent),):
+    db_child = await crud.get_child(current_parent.child_id)
+    if not db_child:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Child not found")
+
+    ChildPydantic = pydantic_model_creator(
+        Child, exclude=("events", "educator", "parents")
+    )
+    return await ChildPydantic.from_tortoise_orm(db_child)

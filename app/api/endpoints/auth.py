@@ -11,7 +11,9 @@ router = APIRouter()
 
 
 @router.post("/token/{user_role}/", response_model=Token)
-async def login_for_access_token(user_role: UserRoleEnum, form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+    user_role: UserRoleEnum, form_data: OAuth2PasswordRequestForm = Depends()
+):
     if user_role == "educator":
         user = await auth.authenticate_educator(form_data.username, form_data.password)
     else:
