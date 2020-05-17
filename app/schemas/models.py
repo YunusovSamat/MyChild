@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import List
+from typing import List, Union
 
 from pydantic import UUID4
 from pydantic.main import BaseModel
@@ -104,7 +104,7 @@ class PhotoDeletePydantic(PhotoBasePydantic):
 
 
 class BillCreatePydantic(BaseModel):
-    child_id: UUID4
+    child_id: UUID4 = None
     theme: str
     sum: int
     status: bool
@@ -117,9 +117,6 @@ class BillUpdatePydantic(BaseModel):
     sum: int = None
     status: bool = None
     comment: str = None
-
-
-BillPydantic = pydantic_model_creator(Bill)
 
 
 class Token(BaseModel):

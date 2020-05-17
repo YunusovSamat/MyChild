@@ -88,6 +88,10 @@ async def delete_event(child_id: UUID, date: datetime.date):
     return delete_count
 
 
+async def get_parent(parent_id: UUID):
+    return await Parent.get_or_none(parent_id=parent_id)
+
+
 async def create_parent(parent: dict):
     return await Parent.create(**parent)
 
