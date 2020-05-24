@@ -37,11 +37,11 @@ async def upload_photo(photo_data: PhotoCreatePydantic, request: Request):
 
     old_photo_name = os.path.split(old_photo_link)[1]
     if old_photo_name != "placeholder.jpg":
-        old_photo_path = f"app/statics/photos/{old_photo_name}"
+        old_photo_path = f"app/static/photos/{old_photo_name}"
         os.remove(old_photo_path)
 
     photo_bytes = base64.b64decode(photo_data.photo_base64)
-    with open(f"app/statics/photos/{photo_name}", "wb") as photo_file:
+    with open(f"app/static/photos/{photo_name}", "wb") as photo_file:
         photo_file.write(photo_bytes)
     return {"photo_link": new_photo_link}
 
@@ -64,7 +64,7 @@ async def delete_photo(photo_data: PhotoDeletePydantic, request: Request):
         await crud.update_parent(photo_data.id, {"photo_link": placeholder_link})
     old_photo_name = os.path.split(old_photo_link)[1]
     if old_photo_name != "placeholder.jpg":
-        old_photo_path = f"app/statics/photos/{old_photo_name}"
+        old_photo_path = f"app/static/photos/{old_photo_name}"
         os.remove(old_photo_path)
 
     return {"photo_link": placeholder_link}

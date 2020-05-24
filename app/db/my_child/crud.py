@@ -10,7 +10,7 @@ from app.db.my_child.models import (
     Food,
     Meal,
     Parent,
-    Ration,
+    Ration, Gallery,
 )
 
 
@@ -122,4 +122,21 @@ async def update_bill(bill_id: UUID, bill: dict):
 
 async def delete_bill(bill_id: UUID):
     delete_count = await Bill.filter(bill_id=bill_id).delete()
+    return delete_count
+
+
+def get_gallery_by_educator_id(educator_id: UUID):
+    return Gallery.filter(educator_id=educator_id).order_by("timestamp").all()
+
+
+async def create_gallery(gallery: dict):
+    return await Gallery.create(**gallery)
+
+
+async def get_gallery(gallery_id: UUID):
+    return await Gallery.get_or_none(gallery_id=gallery_id)
+
+
+async def delete_gallery(gallery_id: UUID):
+    delete_count = await Gallery.filter(gallery_id=gallery_id).delete()
     return delete_count

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
 
 from app.api.routers import router
 from app.core.config import DATABASE_URL
@@ -12,6 +13,7 @@ def get_application() -> FastAPI:
     application.add_event_handler("shutdown", shutdown())
 
     application.include_router(router)
+    application.mount("/gallery", StaticFiles(directory="app/static/gallery"), name="static")
 
     return application
 

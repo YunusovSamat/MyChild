@@ -113,3 +113,16 @@ class Ration(models.Model):
         "my_child.Food", related_name="food_rations", on_delete=fields.CASCADE
     )
     denial = fields.BooleanField()
+
+
+class Gallery(models.Model):
+    gallery_id = fields.UUIDField(pk=True)
+    educator: fields.ForeignKeyRelation[Educator] = fields.ForeignKeyField(
+        "my_child.Educator",
+        related_name="gallery",
+        on_delete=fields.SET_NULL,
+        null=True,
+    )
+    photo_link = fields.CharField(LINK_MAX_LENGTH, null=True)
+    description = fields.CharField(COMMENT_MAX_LENGTH)
+    timestamp = fields.DatetimeField()
