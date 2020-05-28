@@ -2,6 +2,7 @@ import base64
 import datetime
 import os
 import uuid
+from typing import Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request, HTTPException
@@ -10,7 +11,7 @@ from tortoise.contrib.pydantic import pydantic_model_creator
 
 from app.api.dependencies import auth
 from app.db.my_child import crud
-from app.db.my_child.models import Educator, Gallery
+from app.db.my_child.models import Educator, Gallery, Parent
 from app.schemas.models import GalleryCreatePydantic, GalleryPydantic
 
 router = APIRouter()
@@ -18,9 +19,14 @@ router = APIRouter()
 
 @router.get("/gallery/")
 async def read_gallery(
-    current_educator: Educator = Depends(auth.get_current_educator)
+    current_user: Union[Educator, Parent] = Depends(auth.get_current_user)
 ):
-    db_gallery = crud.get_gallery_by_educator_id(current_educator.educator_id)
+    if isinstance(current_user, Parent):
+        child = await current_user.child
+        educator_id = child.educator_id
+    else:
+        educator_id = current_user.educator_id
+    db_gallery = crud.get_gallery_by_educator_id(educator_id)
     return await GalleryPydantic.from_queryset(db_gallery)
 
 
